@@ -1,0 +1,86 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<ContactViewModel>
+@using CleanBlog.Core.Controllers
+@using CleanBlog.Core.ViewModels
+@using System.Web.Mvc.Html
+@{ 
+    Html.EnableClientValidation();
+    Html.EnableUnobtrusiveJavaScript();
+}
+
+@* Added check to see if we added the recaptcha to site settings *@
+@if (!string.IsNullOrEmpty(Model.RecaptchaSiteKey))
+{
+    <script src="https://www.google.com/recaptcha/api.js?render=@Model.RecaptchaSiteKey"></script>
+    <script>
+    grecaptcha.ready(function () {
+        grecaptcha.execute('@Model.RecaptchaSiteKey',
+            { action: 'contact_us' })
+            .then(function (token) { $('#GoogleCaptchaToken').val(token) });
+
+    });
+    </script>
+}
+@if ((string)TempData["status"] == "OK")
+{
+    @* show ok message *@
+    <text>
+        <div class="container">
+            <div class="row">
+                <div class="col text-center p-5">
+                    <i class="far fa-5x fa-thumbs-up"></i>
+                    <div>
+                        Thanks for your comments.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </text>
+}
+else
+{
+<div id="form-outer">
+
+    @using (Ajax.BeginForm("SubmitForm", "ContactSurface", new AjaxOptions()
+    {
+        UpdateTargetId = "form-result",
+        HttpMethod = "POST",
+        InsertionMode = InsertionMode.Replace,
+        OnSuccess = "contactForm.showResult",
+        OnFailure = "contactForm.showResult"
+    }, new { id = "contact-form" }))
+    {
+        @Html.HiddenFor(m => m.ContactFormId)
+
+        <div class="control-group">
+            <div class="form-group floating-label-form-group controls">
+                <label>@Umbraco.GetDictionaryValue("Contact.Name")</label>
+                @Html.TextBoxFor(m => m.Name, new { @class = "form-control", placeholder = Umbraco.GetDictionaryValue("Contact.Name") + "..." })
+                @Html.ValidationMessageFor(m => m.Name)
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="form-group floating-label-form-group controls">
+                <label>@Umbraco.GetDictionaryValue("Contact.Email")</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", placeholder = Umbraco.GetDictionaryValue("Contact.Email") + "..." })
+                @Html.ValidationMessageFor(m => m.Email)
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="form-group col-xs-12 floating-label-form-group controls">
+                <label>@Umbraco.GetDictionaryValue("Contact.Message")</label>
+                @Html.TextBoxFor(m => m.Message, new { @class = "form-control", placeholder = Umbraco.GetDictionaryValue("Contact.Message") + "...", rows = "6" })
+                @Html.ValidationMessageFor(m => m.Message)
+            </div>
+        </div>
+        <br>
+        <input type="hidden" name="GoogleCaptchaToken" id="GoogleCaptchaToken" />
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary" id="sendMessageButton">@Umbraco.GetDictionaryValue("Contact.Send")</button>
+        </div>
+    }
+
+</div>
+}
+
+
+<div id="form-result"></div>

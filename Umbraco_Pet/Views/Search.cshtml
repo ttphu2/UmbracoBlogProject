@@ -1,0 +1,67 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoViewPage<SearchContentModel>
+@using CleanBlog.Core.Models
+@using CleanBlog.Core.ViewModels
+@{
+    Layout = "Master.cshtml";
+}
+
+@* the fun starts here *@
+
+@Html.Partial("~/Views/Partials/pageHeader.cshtml")
+
+<div class="container">
+    <form action="/search/" method="GET" id="search">
+        <div class="row">
+            @Html.Partial("Partials/searchForm", Model.SearchViewModel)
+            <div class="col-lg-8 col-md-10 mx-auto">
+                
+                @* @if (!string.IsNullOrWhiteSpace(searchQuery))
+                    {
+                        var results = Umbraco.ContentQuery.Search(searchQuery, string.Empty);
+                        long resultCount = results != null && results.Any() ? results.Count() : 0;
+                        <p> @Html.Raw(string.Format(Umbraco.GetDictionaryValue("Search.ResultsText"), searchQuery, resultCount, resultCount == 1 ? null : "s"))</p>
+
+                        if (resultCount > 0)
+                        {
+                            foreach (var result in results)
+                            {
+                                var title = result.Content.Value<string>("title");
+                                var subtitle = result.Content.Value<string>("subtitle");
+                                var authorName = result.Content.Value<string>("authorName");
+                                var articleDate = result.Content.Value<DateTime>("articleDate");
+                                <div class="post-preview">
+
+                                    <a href="@result.Content.Url">
+                                        <h2 class="post-title">
+                                            @(!string.IsNullOrWhiteSpace(title) ? title : result.Content.Name)
+                                        </h2>
+                                        @if (!string.IsNullOrWhiteSpace(subtitle))
+                                        {
+                                            <h3 class="post-subtitle">@subtitle</h3>
+                                        }
+                                    </a>
+                                    @if (!string.IsNullOrWhiteSpace(authorName) && articleDate != DateTime.MinValue)
+                                    {
+                                        <p class="post-meta">
+                                            Posted by @authorName on @articleDate.ToString("MMMM dd, yyyy")
+                                        </p>
+                                    }
+
+                                </div>
+                            }
+
+                        }
+                    }*@
+                <p>Your search for <strong>@Model.SearchViewModel.Query</strong> returned these results:</p>
+                @if(Model.SearchResults != null && Model.SearchResults.Any())
+                {
+                    foreach (var item in Model.SearchResults)
+                    {
+                        <p><a href="@item.Url()">@item.Name</a></p>
+                    }
+                }
+                <p>There are no search results</p>
+            </div>
+        </div>
+    </form>
+</div>
